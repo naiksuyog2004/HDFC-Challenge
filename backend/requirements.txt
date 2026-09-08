@@ -5,3 +5,6 @@ pandas
 pymupdf
 requests
 youtube-transcript-api
+google-genai
+python-dotenv
+pydantic
