@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .database import Base, engine
+from . import models
+
+
+# Create database tables when the application starts.
+Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="Management Radar API",
@@ -9,7 +16,6 @@ app = FastAPI(
 )
 
 
-# Allow the React frontend to communicate with the backend.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
