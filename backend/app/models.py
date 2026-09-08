@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -13,7 +13,7 @@ class Company(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
     ticker: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
-
+    sources = relationship("Source", back_populates="company")
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -24,7 +24,7 @@ class Source(Base):
     __tablename__ = "sources"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-
+    company = relationship("Company", back_populates="sources")
     company_id: Mapped[int] = mapped_column(
         ForeignKey("companies.id"),
         nullable=False,
