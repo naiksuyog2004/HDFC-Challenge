@@ -291,3 +291,144 @@ select {
     width: 100%;
   }
 }
+
+.source-count {
+  color: #7a8798;
+  font-size: 13px;
+}
+
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 105px;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: #d6dde7;
+}
+
+.source-card {
+  display: grid;
+  grid-template-columns: 85px 1fr;
+  gap: 30px;
+  position: relative;
+}
+
+.source-date {
+  padding-top: 18px;
+  text-align: right;
+  color: #68758a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.source-content {
+  position: relative;
+  padding: 20px;
+  background: white;
+  border: 1px solid #dfe5ed;
+  border-radius: 12px;
+  box-shadow: 0 5px 18px rgba(20, 40, 70, 0.04);
+}
+
+.source-content::before {
+  content: "";
+  position: absolute;
+  left: -36px;
+  top: 22px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #c62828;
+  border: 3px solid #f5f7fa;
+}
+
+.source-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.source-type {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #c62828;
+}
+
+.processed {
+  font-size: 11px;
+  color: #43845c;
+  background: #eef8f1;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+.source-content h4 {
+  margin: 9px 0;
+  font-size: 17px;
+  line-height: 1.4;
+  color: #172b49;
+}
+
+.source-summary {
+  margin: 0;
+  color: #68758a;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.tag {
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #f0f3f7;
+  color: #536176;
+  font-size: 11px;
+}
+
+.source-link {
+  display: inline-block;
+  margin-top: 15px;
+  color: #c62828;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.source-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  .timeline::before {
+    display: none;
+  }
+
+  .source-card {
+    display: block;
+  }
+
+  .source-date {
+    padding: 0 0 7px;
+    text-align: left;
+  }
+
+  .source-content::before {
+    display: none;
+  }
+}

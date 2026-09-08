@@ -1,12 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./index.css";
+
+const API_BASE = "http://127.0.0.1:8000";
 
 function App() {
   const [company, setCompany] = useState("Maruti Suzuki");
+
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
+
+  const [sources, setSources] = useState([]);
+  const [sourcesLoading, setSourcesLoading] = useState(true);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchSources();
+  }, [company]);
+
+  const fetchSources = async () => {
+    setSourcesLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/api/sources?company=${encodeURIComponent(company)}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load company sources.");
+      }
+
+      const data = await response.json();
+
+      setSources(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSourcesLoading(false);
+    }
+  };
 
   const askQuestion = async () => {
     if (!question.trim()) {
@@ -18,7 +51,7 @@ function App() {
     setAnswer(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/chat", {
+      const response = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,6 +84,16 @@ function App() {
       event.preventDefault();
       askQuestion();
     }
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "Date unavailable";
+
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   return (
@@ -95,22 +138,84 @@ function App() {
           </p>
         </section>
 
+        {/* TIMELINE */}
         <section className="timeline-section">
           <div className="section-heading">
             <div>
               <span className="eyebrow">Timeline</span>
               <h3>{company}</h3>
             </div>
-          </div>
 
-          <div className="empty-state">
-            <p>Source timeline will appear here.</p>
-            <span>
-              Ask a question below to explore management intelligence.
+            <span className="source-count">
+              {sources.length} sources
             </span>
           </div>
+
+          {sourcesLoading ? (
+            <div className="empty-state">
+              <p>Loading sources...</p>
+            </div>
+          ) : sources.length === 0 ? (
+            <div className="empty-state">
+              <p>No sources available.</p>
+            </div>
+          ) : (
+            <div className="timeline">
+              {sources.map((source) => (
+                <article className="source-card" key={source.id}>
+                  <div className="source-date">
+                    {formatDate(source.published_at)}
+                  </div>
+
+                  <div className="source-content">
+                    <div className="source-top">
+                      <span className="source-type">
+                        {source.source_type === "YOUTUBE"
+                          ? "VIDEO"
+                          : "DISCLOSURE"}
+                      </span>
+
+                      {source.status === "processed" && (
+                        <span className="processed">
+                          Processed
+                        </span>
+                      )}
+                    </div>
+
+                    <h4>{source.title}</h4>
+
+                    {source.summary && (
+                      <p className="source-summary">
+                        {source.summary}
+                      </p>
+                    )}
+
+                    {source.tags && source.tags.length > 0 && (
+                      <div className="tags">
+                        {source.tags.map((tag) => (
+                          <span className="tag" key={tag}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <a
+                      className="source-link"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View original source →
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
+        {/* CHAT */}
         <section className="chat-section">
           <div className="section-heading">
             <div>
@@ -129,7 +234,9 @@ function App() {
             />
 
             <div className="chat-actions">
-              <span>Answers are grounded in available company sources.</span>
+              <span>
+                Answers are grounded in available company sources.
+              </span>
 
               <button
                 onClick={askQuestion}
@@ -155,42 +262,45 @@ function App() {
 
               <p className="answer-text">{answer.answer}</p>
 
-              {answer.citations && answer.citations.length > 0 && (
-                <div className="citations">
-                  <h4>Sources</h4>
+              {answer.citations &&
+                answer.citations.length > 0 && (
+                  <div className="citations">
+                    <h4>Sources</h4>
 
-                  {answer.citations.map((citation) => (
-                    <div
-                      className="citation-card"
-                      key={citation.chunk_id}
-                    >
-                      <div className="citation-title">
-                        {citation.source_title}
+                    {answer.citations.map((citation) => (
+                      <div
+                        className="citation-card"
+                        key={citation.chunk_id}
+                      >
+                        <div className="citation-title">
+                          {citation.source_title}
+                        </div>
+
+                        <div className="citation-meta">
+                          {citation.source_type === "BSE_PDF" &&
+                            citation.page_number && (
+                              <span>
+                                Page {citation.page_number}
+                              </span>
+                            )}
+
+                          {citation.source_type === "YOUTUBE" &&
+                            citation.start_timestamp && (
+                              <span>
+                                {citation.start_timestamp}
+                                {citation.end_timestamp &&
+                                  ` – ${citation.end_timestamp}`}
+                              </span>
+                            )}
+
+                          <span>
+                            Chunk #{citation.chunk_id}
+                          </span>
+                        </div>
                       </div>
-
-                      <div className="citation-meta">
-                        {citation.source_type === "BSE_PDF" &&
-                          citation.page_number && (
-                            <span>
-                              Page {citation.page_number}
-                            </span>
-                          )}
-
-                        {citation.source_type === "YOUTUBE" &&
-                          citation.start_timestamp && (
-                            <span>
-                              {citation.start_timestamp}
-                              {citation.end_timestamp &&
-                                ` – ${citation.end_timestamp}`}
-                            </span>
-                          )}
-
-                        <span>Chunk #{citation.chunk_id}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
 
               {answer.citations &&
                 answer.citations.length === 0 && (
