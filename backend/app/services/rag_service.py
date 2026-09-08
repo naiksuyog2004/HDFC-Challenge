@@ -134,6 +134,7 @@ STRICT RULES:
                 "source_id": chunk.source_id,
                 "source_title": chunk.source.title,
                 "source_type": chunk.source.source_type,
+                "source_url": chunk.source.url,
                 "page_number": chunk.page_number,
                 "start_timestamp": format_timestamp(
                     chunk.start_timestamp

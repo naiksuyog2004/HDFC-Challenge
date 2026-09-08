@@ -289,8 +289,8 @@ function App() {
                           {source.tags.map((tag) => (
                             <button
                               className={`tag ${tagFilter === tag
-                                  ? "tag-active"
-                                  : ""
+                                ? "tag-active"
+                                : ""
                                 }`}
                               key={tag}
                               onClick={() =>
@@ -384,9 +384,21 @@ function App() {
                         className="citation-card"
                         key={citation.chunk_id}
                       >
-                        <div className="citation-title">
+                        <a
+                          className="citation-title citation-link"
+                          href={
+                            citation.source_type === "YOUTUBE" &&
+                              citation.start_timestamp
+                              ? `${citation.source_url}&t=${Math.floor(
+                                citation.start_timestamp
+                              )}s`
+                              : citation.source_url
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           {citation.source_title}
-                        </div>
+                        </a>
 
                         <div className="citation-meta">
                           {citation.source_type ===
