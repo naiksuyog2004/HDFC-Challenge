@@ -22,7 +22,7 @@ class Company(Base):
 
 class Source(Base):
     __tablename__ = "sources"
-
+    chunks = relationship("TextChunk", back_populates="source")
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     company = relationship("Company", back_populates="sources")
     company_id: Mapped[int] = mapped_column(
@@ -108,6 +108,8 @@ class TextChunk(Base):
         Float,
         nullable=True,
     )
+
+    source = relationship("Source", back_populates="chunks")
 
 
 class Tag(Base):

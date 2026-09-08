@@ -1,11 +1,13 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from .database import Base, engine
+from .database import Base, engine, get_db
 from . import models
+from .services.rag_service import answer_question
 
 
-# Create database tables when the application starts.
 Base.metadata.create_all(bind=engine)
 
 
@@ -25,6 +27,11 @@ app.add_middleware(
 )
 
 
+class ChatRequest(BaseModel):
+    question: str
+    company: str | None = None
+
+
 @app.get("/")
 def root():
     return {
@@ -37,3 +44,15 @@ def health_check():
     return {
         "status": "healthy"
     }
+
+
+@app.post("/api/chat")
+def chat(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+):
+    return answer_question(
+        db=db,
+        question=request.question,
+        company_name=request.company,
+    )
