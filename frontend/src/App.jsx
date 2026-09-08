@@ -110,6 +110,19 @@ function App() {
     ),
   ].sort();
 
+  const totalSources = sources.length;
+
+  const disclosureCount = sources.filter(
+    (source) => source.source_type === "BSE_PDF"
+  ).length;
+
+  const videoCount = sources.filter(
+    (source) => source.source_type === "YOUTUBE"
+  ).length;
+
+  const processedCount = sources.filter(
+    (source) => source.status === "processed"
+  ).length;
   // Apply search + source type + tag filters
   const filteredSources = sources.filter((source) => {
     const search = searchTerm.toLowerCase().trim();
@@ -181,6 +194,27 @@ function App() {
           </p>
         </section>
 
+        <section className="stats-grid">
+          <div className="stat-card">
+            <span>Total Sources</span>
+            <strong>{totalSources}</strong>
+          </div>
+
+          <div className="stat-card">
+            <span>Disclosures</span>
+            <strong>{disclosureCount}</strong>
+          </div>
+
+          <div className="stat-card">
+            <span>Management Videos</span>
+            <strong>{videoCount}</strong>
+          </div>
+
+          <div className="stat-card">
+            <span>Processed</span>
+            <strong>{processedCount}</strong>
+          </div>
+        </section>
         {/* TIMELINE */}
         <section className="timeline-section">
           <div className="section-heading">
