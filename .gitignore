@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Database temporary files
+*.db-wal
+*.db-shm
+
+# OS
+.DS_Store
+Thumbs.db
