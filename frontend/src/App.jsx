@@ -12,6 +12,11 @@ function App() {
   const [sources, setSources] = useState([]);
   const [sourcesLoading, setSourcesLoading] = useState(true);
 
+  // Milestone 11 filters
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sourceTypeFilter, setSourceTypeFilter] = useState("ALL");
+  const [tagFilter, setTagFilter] = useState("ALL");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -87,7 +92,9 @@ function App() {
   };
 
   const formatDate = (date) => {
-    if (!date) return "Date unavailable";
+    if (!date) {
+      return "Date unavailable";
+    }
 
     return new Date(date).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -95,6 +102,36 @@ function App() {
       year: "numeric",
     });
   };
+
+  // Get unique tags for the selected company
+  const availableTags = [
+    ...new Set(
+      sources.flatMap((source) => source.tags || [])
+    ),
+  ].sort();
+
+  // Apply search + source type + tag filters
+  const filteredSources = sources.filter((source) => {
+    const search = searchTerm.toLowerCase().trim();
+
+    const matchesSearch =
+      !search ||
+      source.title.toLowerCase().includes(search) ||
+      (source.summary || "").toLowerCase().includes(search) ||
+      (source.tags || []).some((tag) =>
+        tag.toLowerCase().includes(search)
+      );
+
+    const matchesType =
+      sourceTypeFilter === "ALL" ||
+      source.source_type === sourceTypeFilter;
+
+    const matchesTag =
+      tagFilter === "ALL" ||
+      (source.tags || []).includes(tagFilter);
+
+    return matchesSearch && matchesType && matchesTag;
+  });
 
   return (
     <div className="app">
@@ -114,6 +151,11 @@ function App() {
               setCompany(event.target.value);
               setAnswer(null);
               setError("");
+
+              // Reset filters when company changes
+              setSearchTerm("");
+              setSourceTypeFilter("ALL");
+              setTagFilter("ALL");
             }}
           >
             <option value="Maruti Suzuki">Maruti Suzuki</option>
@@ -123,6 +165,7 @@ function App() {
       </header>
 
       <main className="container">
+        {/* HERO */}
         <section className="hero">
           <span className="eyebrow">Management Intelligence</span>
 
@@ -147,9 +190,49 @@ function App() {
             </div>
 
             <span className="source-count">
-              {sources.length} sources
+              {filteredSources.length} of {sources.length} sources
             </span>
           </div>
+
+          {/* FILTERS */}
+          {!sourcesLoading && sources.length > 0 && (
+            <div className="filters">
+              <input
+                type="text"
+                placeholder="Search sources..."
+                value={searchTerm}
+                onChange={(event) =>
+                  setSearchTerm(event.target.value)
+                }
+              />
+
+              <select
+                value={sourceTypeFilter}
+                onChange={(event) =>
+                  setSourceTypeFilter(event.target.value)
+                }
+              >
+                <option value="ALL">All sources</option>
+                <option value="BSE_PDF">Disclosures</option>
+                <option value="YOUTUBE">Videos</option>
+              </select>
+
+              <select
+                value={tagFilter}
+                onChange={(event) =>
+                  setTagFilter(event.target.value)
+                }
+              >
+                <option value="ALL">All tags</option>
+
+                {availableTags.map((tag) => (
+                  <option value={tag} key={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {sourcesLoading ? (
             <div className="empty-state">
@@ -159,10 +242,20 @@ function App() {
             <div className="empty-state">
               <p>No sources available.</p>
             </div>
+          ) : filteredSources.length === 0 ? (
+            <div className="empty-state">
+              <p>No matching sources.</p>
+              <span>
+                Try changing your search or filters.
+              </span>
+            </div>
           ) : (
             <div className="timeline">
-              {sources.map((source) => (
-                <article className="source-card" key={source.id}>
+              {filteredSources.map((source) => (
+                <article
+                  className="source-card"
+                  key={source.id}
+                >
                   <div className="source-date">
                     {formatDate(source.published_at)}
                   </div>
@@ -190,15 +283,25 @@ function App() {
                       </p>
                     )}
 
-                    {source.tags && source.tags.length > 0 && (
-                      <div className="tags">
-                        {source.tags.map((tag) => (
-                          <span className="tag" key={tag}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {source.tags &&
+                      source.tags.length > 0 && (
+                        <div className="tags">
+                          {source.tags.map((tag) => (
+                            <button
+                              className={`tag ${tagFilter === tag
+                                  ? "tag-active"
+                                  : ""
+                                }`}
+                              key={tag}
+                              onClick={() =>
+                                setTagFilter(tag)
+                              }
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
+                      )}
 
                     <a
                       className="source-link"
@@ -219,7 +322,10 @@ function App() {
         <section className="chat-section">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Research Assistant</span>
+              <span className="eyebrow">
+                Research Assistant
+              </span>
+
               <h3>Ask Management Radar</h3>
             </div>
           </div>
@@ -227,7 +333,9 @@ function App() {
           <div className="chat-box">
             <textarea
               value={question}
-              onChange={(event) => setQuestion(event.target.value)}
+              onChange={(event) =>
+                setQuestion(event.target.value)
+              }
               onKeyDown={handleKeyDown}
               placeholder={`Ask something about ${company}...`}
               rows={4}
@@ -247,6 +355,7 @@ function App() {
             </div>
           </div>
 
+          {/* ERROR */}
           {error && (
             <div className="error-box">
               <strong>Error</strong>
@@ -254,13 +363,16 @@ function App() {
             </div>
           )}
 
+          {/* ANSWER */}
           {answer && (
             <div className="answer-card">
               <div className="answer-header">
                 <span className="eyebrow">AI Answer</span>
               </div>
 
-              <p className="answer-text">{answer.answer}</p>
+              <p className="answer-text">
+                {answer.answer}
+              </p>
 
               {answer.citations &&
                 answer.citations.length > 0 && (
@@ -277,17 +389,21 @@ function App() {
                         </div>
 
                         <div className="citation-meta">
-                          {citation.source_type === "BSE_PDF" &&
+                          {citation.source_type ===
+                            "BSE_PDF" &&
                             citation.page_number && (
                               <span>
-                                Page {citation.page_number}
+                                Page{" "}
+                                {citation.page_number}
                               </span>
                             )}
 
-                          {citation.source_type === "YOUTUBE" &&
+                          {citation.source_type ===
+                            "YOUTUBE" &&
                             citation.start_timestamp && (
                               <span>
                                 {citation.start_timestamp}
+
                                 {citation.end_timestamp &&
                                   ` – ${citation.end_timestamp}`}
                               </span>

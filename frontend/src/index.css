@@ -432,3 +432,42 @@ select {
     display: none;
   }
 }
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 180px 180px;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid #d5dce6;
+  border-radius: 8px;
+  background: white;
+  color: #25344a;
+  outline: none;
+}
+
+.filters input:focus,
+.filters select:focus {
+  border-color: #7f91aa;
+}
+
+.tag {
+  border: 0;
+  cursor: pointer;
+}
+
+.tag-active {
+  background: #071a35;
+  color: white;
+}
+
+@media (max-width: 800px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
