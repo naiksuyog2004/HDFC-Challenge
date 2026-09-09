@@ -23,7 +23,7 @@ LLM, and the resulting answer is returned with citations to the original
 document page or video timestamp.
 
 ------------------------------------------------------------------------
-Demo Video Link : https://drive.google.com/file/d/1M5EGsbkTvGU4JnrpYkXyuFH4vEEIgLRU/view?usp=sharing
+Demo Video Link : https://youtu.be/6VnrajSjU0k
 
 ## 1. Overview
 
